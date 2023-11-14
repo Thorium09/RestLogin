@@ -32,25 +32,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
+/* Annotations that make sure and tells the system that this class is a Controller
+ * where we will write our all kind of Api's
+ * */
 @RequestMapping("/api/auth")
+/*this annotation states the common Https link of our api*/
 public class AuthController {
-    public AuthController(){}
+    public AuthController() {
+    }
+
     AuthenticationManager authenticationManager;
+//    used to verify the login users name and its password from database
 
 
     UserRepository userRepository;
-
+//  UsersRepo
 
     RoleRepository roleRepository;
-
+    // Rolerepo
 
     PasswordEncoder encoder;
-
+// to encode the password user typed to verify it in data base
 
     JwtUtils jwtUtils;
+//    another class made by me
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, JwtUtils jwtUtils) {
@@ -62,15 +69,20 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
+    /*this is a http post api which will Log in the user
+     * where its link will be common link + /signin
+     * */
     public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
-
+// authenticating the user by its username and password
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+//        this hold the status of the auth and their details as well
         String jwt = jwtUtils.generateJwtToken(authentication);
-
+//         this will generate a jwt token with the help of username
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+//        got all the details of the user
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
@@ -83,13 +95,17 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
+    /*this is a http post api which will Log in the user
+     * where its link will be common link + /signup
+     * */
     public ResponseEntity<?> registerUser(@Validated @RequestBody SignupRequest signUpRequest) {
+//        checking that do we already have some user under this username or not
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
-
+//        checking that do we already have some user under this email or not
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
@@ -105,10 +121,12 @@ public class AuthController {
         Set<Role> roles = new HashSet<>();
 
         if (strRoles == null) {
+//            default given role
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(userRole);
         } else {
+//            else giving the role mentioned with request
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin" -> {

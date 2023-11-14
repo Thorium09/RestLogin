@@ -55,11 +55,15 @@ public class WebSecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
+
+//    use to encode the password from normal text to cryptic text
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+//    this the filter which will look that which api is permitted without
+//    the jwt and vice versa
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
@@ -72,7 +76,7 @@ public class WebSecurityConfig {
                 );
 
         http.authenticationProvider(authenticationProvider());
-
+//      added the filter here
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
