@@ -99,7 +99,9 @@ public class AuthController {
      * where its link will be common link + /signup
      * */
     public ResponseEntity<?> registerUser(@Validated @RequestBody SignupRequest signUpRequest) {
-//        checking that do we already have some user under this username or not
+        System.out.println(signUpRequest.getEmail());
+
+        //        checking that do we already have some user under this username or not
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
